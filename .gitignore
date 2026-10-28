@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.bsp
+.pytest_cache/
+frames/
+render_config.ini
+/engineering/

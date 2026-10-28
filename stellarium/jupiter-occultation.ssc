@@ -1,0 +1,137 @@
+//
+// Name: Lunar Occultation of Jupiter (November 2-3, 2026)
+// Author: kvsankar
+// License: Public Domain
+// Description: Watch the waning crescent Moon occult Jupiter and its Galilean
+//   satellites in the eastern sky, observed from Bengaluru, India (or other
+//   configured coordinates). Ingress occurs on the Moon's bright limb; egress
+//   occurs dramatically on the dark (unlit) limb.
+//
+
+// ---- Configuration ---------------------------------------------------------
+var LOCATION_NAME = "Bengaluru, India";
+var LON = 77.5946;          // Longitude (degrees East)
+var LAT = 12.9716;          // Latitude (degrees North)
+var ALT = 920;              // Altitude (meters)
+
+// Simulation start and end (UTC)
+var START_TIME = "2026-11-02T20:48:00";
+var END_TIME   = "2026-11-02T21:40:00";
+
+// Simulation speed: simulation seconds per real second
+// At 40x, the 52-minute event plays out in ~78 seconds.
+var RATE = 40;
+
+// Field of view
+var WIDE_FOV  = 12.0;       // Initial contextual view (degrees)
+var ZOOM_FOV  = 0.65;       // Telescopic view framing Moon & Jupiter (degrees)
+
+// Milestones calculated with JPL DE440s ephemeris (UTC and IST)
+var EVENTS = [
+    ["2026-11-02T20:48:00", "Approach: Jupiter & Galilean moons approach the Moon's bright limb", "Alt: 17 deg (East) | IST: 02:18"],
+    ["2026-11-02T20:58:56", "Contact I (Ingress): Jupiter first touches the Moon's bright limb", "Alt: 20 deg | IST: 02:28:56"],
+    ["2026-11-02T21:01:31", "Contact II: Jupiter completely disappears behind the Moon", "Alt: 20 deg | IST: 02:31:31"],
+    ["2026-11-02T21:16:13", "Mid-Occultation: Jupiter at maximum depth behind lunar limb", "Min sep: 14.0' | Alt: 24 deg | IST: 02:46:13"],
+    ["2026-11-02T21:31:27", "Contact III (Egress): Jupiter emerges from the Moon's dark limb!", "Alt: 27 deg | IST: 03:01:27"],
+    ["2026-11-02T21:34:12", "Contact IV: Jupiter fully clear of the lunar disk", "Alt: 28 deg | IST: 03:04:12"],
+    ["2026-11-02T21:38:00", "Occultation Complete: Jupiter and Galilean moons in full view", "Alt: 29 deg | IST: 03:08"]
+];
+
+// Snapshot mode: if true, captures images at key milestones into SHOT_DIR and exits.
+var SNAPSHOTS = false;
+var SHOT_DIR = "";
+var SNAP_TIMES = [
+    ["2026-11-02T20:52:00", "approach", "Pre-ingress: Jupiter approaching illuminated limb"],
+    ["2026-11-02T20:59:30", "ingress", "Ingress: Jupiter partially occulted by bright limb"],
+    ["2026-11-02T21:16:13", "totality", "Mid-occultation: Jupiter hidden behind Moon"],
+    ["2026-11-02T21:32:00", "egress", "Egress: Jupiter emerging from dark limb"],
+    ["2026-11-02T21:38:00", "reappeared", "Post-egress: Jupiter beside lunar crescent"]
+];
+// ----------------------------------------------------------------------------
+
+core.clear("natural");
+core.setTimeRate(0);
+
+// Observer location
+LandscapeMgr.setFlagLandscapeSetsLocation(false);
+LandscapeMgr.setCurrentLandscapeID("zero");
+LandscapeMgr.setFlagLandscape(true);
+core.wait(0.5);
+
+core.setObserverLocation(LON, LAT, ALT, 0, LOCATION_NAME, "Earth");
+core.wait(0.5);
+
+// Sky & rendering setup
+LandscapeMgr.setFlagAtmosphere(true);
+LandscapeMgr.setFlagFog(false);
+LandscapeMgr.setFlagCardinalPoints(true);
+StelSkyDrawer.setFlagHasAtmosphere(true);
+SolarSystem.setFlagPlanets(true);
+SolarSystem.setFlagMoonScale(false);
+StelMovementMgr.setEquatorialMount(false);
+
+// Date and initial framing
+core.setDate(START_TIME, "utc");
+core.wait(0.5);
+
+// Select Jupiter and track it
+core.selectObjectByName("Jupiter", true);
+StelMovementMgr.setFlagTracking(true);
+StelMovementMgr.zoomTo(WIDE_FOV, 2);
+core.wait(2.5);
+
+// Smoothly zoom in to telescopic view
+StelMovementMgr.zoomTo(ZOOM_FOV, 3);
+core.wait(3.5);
+
+// On-screen HUD labels
+var titleLabel = LabelMgr.labelScreen(
+    "Lunar Occultation of Jupiter  |  " + LOCATION_NAME,
+    30, 35, true, 20, "#e0e8ff"
+);
+
+var subtitleLabel = LabelMgr.labelScreen(
+    "Night of 2-3 November 2026  |  Waning Crescent Moon (34% illuminated)",
+    30, 65, true, 14, "#9bb7d4"
+);
+
+var phaseLabel = -1;
+var detailLabel = -1;
+
+function updateHUD(phaseText, detailText) {
+    if (phaseLabel >= 0) LabelMgr.deleteLabel(phaseLabel);
+    if (detailLabel >= 0) LabelMgr.deleteLabel(detailLabel);
+    phaseLabel = LabelMgr.labelScreen(phaseText, 30, 95, true, 17, "#ffd27f");
+    detailLabel = LabelMgr.labelScreen(detailText, 30, 125, true, 13, "#a0d0a0");
+}
+
+if (SNAPSHOTS) {
+    for (var i = 0; i < SNAP_TIMES.length; i++) {
+        core.setDate(SNAP_TIMES[i][0], "utc");
+        updateHUD(SNAP_TIMES[i][2], "UTC: " + SNAP_TIMES[i][0]);
+        core.wait(1);
+        core.screenshot("jupiter-occ-" + SNAP_TIMES[i][1] + "-", false, SHOT_DIR, true);
+        core.wait(0.5);
+    }
+    core.quitStellarium();
+} else {
+    updateHUD(EVENTS[0][1], EVENTS[0][2]);
+    core.wait(1);
+    core.setTimeRate(RATE);
+
+    var endJd = core.jdFromDateString(END_TIME, "utc");
+    var nextEvent = 1;
+
+    while (core.getJDay() < endJd) {
+        if (nextEvent < EVENTS.length &&
+            core.getJDay() >= core.jdFromDateString(EVENTS[nextEvent][0], "utc")) {
+            updateHUD(EVENTS[nextEvent][1], EVENTS[nextEvent][2]);
+            nextEvent++;
+        }
+        core.wait(0.1);
+    }
+
+    core.setTimeRate(1);
+    updateHUD("Observation complete", "Real-time playback resumed");
+    core.wait(5);
+}

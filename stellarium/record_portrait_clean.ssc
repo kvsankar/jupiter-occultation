@@ -1,0 +1,55 @@
+// Headless clean portrait recorder
+core.clear("natural");
+core.setTimeRate(0);
+
+// Disable all text, labels, GUI and markers
+core.setSelectedObjectInfo("None");
+core.setGuiVisible(false);
+SolarSystem.setFlagLabels(false);
+SolarSystem.setFlagHints(false);
+SolarSystem.setFlagOrbits(false);
+SolarSystem.setFlagTrails(false);
+SolarSystem.setFlagMarkers(false);
+SolarSystem.setFlagMoonScale(false);
+StarMgr.setFlagLabels(false);
+ConstellationMgr.setFlagLines(false);
+ConstellationMgr.setFlagLabels(false);
+ConstellationMgr.setFlagBoundaries(false);
+GridLinesMgr.setFlagEquatorGrid(false);
+GridLinesMgr.setFlagAzimuthalGrid(false);
+GridLinesMgr.setFlagHorizonLine(false);
+LandscapeMgr.setFlagCardinalPoints(false);
+LandscapeMgr.setFlagAtmosphere(true);
+LandscapeMgr.setFlagFog(false);
+LandscapeMgr.setFlagLandscape(false);
+LabelMgr.deleteAllLabels();
+
+// Observer location (Bengaluru)
+LandscapeMgr.setFlagLandscapeSetsLocation(false);
+core.setObserverLocation(77.5946, 12.9716, 920, 0, "Bengaluru", "Earth");
+core.wait(0.5);
+
+// Set start date and target
+core.setDate("2026-11-02T20:55:00", "utc");
+core.selectObjectByName("Jupiter", false);
+core.moveToSelectedObject(0);
+StelMovementMgr.setFlagTracking(true);
+StelMovementMgr.zoomTo(1.15, 0);
+core.wait(1.5);
+
+var shotDir = "C:/sankar/code/kvsankar-private/jupiter-occultation/frames";
+var startJd = core.jdFromDateString("2026-11-02T20:55:00", "utc");
+var endJd   = core.jdFromDateString("2026-11-02T21:38:00", "utc");
+var totalFrames = 900;
+var stepJd = (endJd - startJd) / (totalFrames - 1);
+
+for (var i = 0; i < totalFrames; i++) {
+    core.setJDay(startJd + i * stepJd);
+    core.wait(0.035);
+    var pad = ("000" + i).slice(-4);
+    core.screenshot("frame_" + pad, false, shotDir, true);
+    core.wait(0.015);
+}
+
+core.wait(0.5);
+core.quitStellarium();
