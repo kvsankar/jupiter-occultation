@@ -10,6 +10,11 @@ repository provides two things:
   (`stellarium/jupiter-occultation.ssc`) to observe and animate the event from
   Bengaluru, India (or any configured location).
 
+![Animation in Stellarium: the waning crescent Moon passes across Jupiter and its Galilean satellites, Bengaluru, 2–3 November 2026](video/jupiter-occultation-portrait.gif)
+
+The animation shows the event from Bengaluru in mobile portrait format (FOV 1.15°, clean display without text or markers). The full-resolution video is:
+- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (30 seconds, 720 × 1280 pixels, H.264, 30 fps).
+
 ## The Event
 
 During early November 2026, the Moon is a 23-day-old waning crescent (approx.
