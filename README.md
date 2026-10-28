@@ -12,8 +12,14 @@ repository provides two things:
 
 ![Animation in Stellarium: the waning crescent Moon passes across Jupiter and its Galilean satellites, Bengaluru, 2–3 November 2026](video/jupiter-occultation-portrait.gif)
 
-The animation shows the event from Bengaluru in mobile portrait format (FOV 1.15°, clean display without text or markers). The full-resolution video is:
-- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (30 seconds, 720 × 1280 pixels, H.264, 30 fps).
+The animation shows the event from Bengaluru in mobile portrait format (720 × 1280 pixels, 9:16 aspect ratio, suitable for Instagram Reels and YouTube Shorts). It includes:
+1. **Intro title card:** Event details, date, and observing location.
+2. **Wide sky overview:** Eastern pre-dawn sky in Leo with constellation lines, horizon, and rising Moon & Jupiter.
+3. **Telescopic context view (FOV 1.15°):** Continuous transit with subtle live HUD overlay (Bengaluru location, running IST time, and running Alt/Az for Jupiter and Moon).
+4. **Zoomed close-up (FOV 0.20°):** High magnification showing Jupiter's disk, cloud belts, and Galilean moons, pausing for 1.5 seconds at each contact moment (Contact I, II, Mid, III, IV) with callout banners.
+
+Full-resolution video:
+- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (41 seconds, 720 × 1280 pixels, H.264, 30 fps).
 
 ## The Event
 
@@ -98,19 +104,20 @@ cp stellarium/jupiter-occultation.ssc ~/.stellarium/scripts/
 4. Select **Lunar Occultation of Jupiter (November 2-3, 2026)** and click the **Run** button (play icon).
    *(Alternatively, press **F12** to open the Script Console, load the file, and press Run).*
 
-### 4. Headless Mobile Portrait Recording (30-second clip)
+### 4. Headless Mobile Portrait Video Generation
 
-To record a headless, marker-free video clip in mobile portrait orientation
-(9:16 aspect ratio, 720 × 1280 pixels, 30 fps, 30 seconds duration):
+To generate the complete 41-second multi-segment mobile portrait video (title card, wide sky, telescopic transit with HUD, and zoomed close-up with contact pauses):
 
 ```powershell
-uv run python generate_video.py
+uv run python make_segments.py
 ```
 
-This runs Stellarium in a headless 720×1280 viewport with all GUI, labels,
-selection markers, and reticles turned off. It captures 900 frames covering the
-entire approach, bright-limb ingress, mid-occultation, and dark-limb egress,
-then encodes them using ffmpeg into `video/jupiter-occultation-portrait.mp4`.
+This automates the entire pipeline:
+1. Generates the introductory title segment.
+2. Captures wide-sky context in Stellarium (Leo, horizon, rising Moon/Jupiter).
+3. Overlays running IST time and topocentric Alt/Az onto the telescopic transit.
+4. Generates a high-magnification close-up on Jupiter, pausing for 1.5 seconds at each contact (C1, C2, Mid, C3, C4) with callout banners.
+5. Assembles all segments into `video/jupiter-occultation-portrait.mp4` and creates an animated GIF preview.
 
 ## Running the Python Calculation
 

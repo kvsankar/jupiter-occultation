@@ -3,5 +3,10 @@ __pycache__/
 *.bsp
 .pytest_cache/
 frames/
+frames_*/
 render_config.ini
+*.ass
+concat_list.txt
+video/seg*.mp4
+video/*-complete.mp4
 /engineering/

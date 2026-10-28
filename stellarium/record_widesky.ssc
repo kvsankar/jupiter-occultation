@@ -1,0 +1,48 @@
+// Wide sky overview from Bengaluru
+core.clear("natural");
+core.setTimeRate(0);
+core.setSelectedObjectInfo("None");
+core.setGuiVisible(false);
+
+LandscapeMgr.setFlagLandscapeSetsLocation(false);
+LandscapeMgr.setCurrentLandscapeID("zero");
+LandscapeMgr.setFlagLandscape(true);
+core.setObserverLocation(77.5946, 12.9716, 920, 0, "Bengaluru", "Earth");
+core.wait(0.5);
+
+LandscapeMgr.setFlagAtmosphere(true);
+LandscapeMgr.setFlagFog(false);
+LandscapeMgr.setFlagCardinalPoints(true);
+ConstellationMgr.setFlagLines(true);
+ConstellationMgr.setFlagLabels(true);
+ConstellationMgr.setFlagBoundaries(false);
+SolarSystem.setFlagPlanets(true);
+SolarSystem.setFlagLabels(true);
+SolarSystem.setFlagHints(true);
+SolarSystem.setFlagMoonScale(true);
+SolarSystem.setMoonScale(2.5); // Slightly larger so Moon is prominent in wide shot
+GridLinesMgr.setFlagHorizonLine(true);
+LabelMgr.deleteAllLabels();
+
+core.setDate("2026-11-02T20:15:00", "utc");
+// Look East (Az 85, Alt 25)
+core.moveToAltAzi(25, 85, 0);
+StelMovementMgr.zoomTo(65, 0);
+core.wait(2.0);
+
+var shotDir = "C:/sankar/code/kvsankar-private/jupiter-occultation/frames_widesky";
+var startJd = core.jdFromDateString("2026-11-02T20:15:00", "utc");
+var endJd   = core.jdFromDateString("2026-11-02T21:45:00", "utc");
+var totalFrames = 120;
+var stepJd = (endJd - startJd) / (totalFrames - 1);
+
+for (var i = 0; i < totalFrames; i++) {
+    core.setJDay(startJd + i * stepJd);
+    core.wait(0.035);
+    var pad = ("000" + i).slice(-4);
+    core.screenshot("frame_" + pad, false, shotDir, true);
+    core.wait(0.015);
+}
+
+core.wait(0.5);
+core.quitStellarium();

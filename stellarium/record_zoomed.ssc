@@ -1,0 +1,52 @@
+// Zoomed close-up on Jupiter
+core.clear("natural");
+core.setTimeRate(0);
+core.setSelectedObjectInfo("None");
+core.setGuiVisible(false);
+
+LandscapeMgr.setFlagLandscapeSetsLocation(false);
+core.setObserverLocation(77.5946, 12.9716, 920, 0, "Bengaluru", "Earth");
+core.wait(0.5);
+
+LandscapeMgr.setFlagAtmosphere(true);
+LandscapeMgr.setFlagFog(false);
+LandscapeMgr.setFlagLandscape(false);
+LandscapeMgr.setFlagCardinalPoints(false);
+SolarSystem.setFlagPlanets(true);
+SolarSystem.setFlagLabels(false);
+SolarSystem.setFlagHints(false);
+SolarSystem.setFlagOrbits(false);
+SolarSystem.setFlagTrails(false);
+SolarSystem.setFlagMarkers(false);
+SolarSystem.setFlagMoonScale(false);
+StarMgr.setFlagLabels(false);
+ConstellationMgr.setFlagLines(false);
+ConstellationMgr.setFlagLabels(false);
+GridLinesMgr.setFlagEquatorGrid(false);
+GridLinesMgr.setFlagAzimuthalGrid(false);
+GridLinesMgr.setFlagHorizonLine(false);
+LabelMgr.deleteAllLabels();
+
+core.setDate("2026-11-02T20:56:00", "utc");
+core.selectObjectByName("Jupiter", false);
+core.moveToSelectedObject(0);
+StelMovementMgr.setFlagTracking(true);
+StelMovementMgr.zoomTo(0.20, 0); // High magnification
+core.wait(2.0);
+
+var shotDir = "C:/sankar/code/kvsankar-private/jupiter-occultation/frames_zoomed_raw";
+var startJd = core.jdFromDateString("2026-11-02T20:56:00", "utc");
+var endJd   = core.jdFromDateString("2026-11-02T21:36:00", "utc");
+var totalFrames = 240;
+var stepJd = (endJd - startJd) / (totalFrames - 1);
+
+for (var i = 0; i < totalFrames; i++) {
+    core.setJDay(startJd + i * stepJd);
+    core.wait(0.035);
+    var pad = ("000" + i).slice(-4);
+    core.screenshot("frame_" + pad, false, shotDir, true);
+    core.wait(0.015);
+}
+
+core.wait(0.5);
+core.quitStellarium();
