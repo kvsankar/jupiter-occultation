@@ -10,18 +10,32 @@ repository provides two things:
   (`stellarium/jupiter-occultation.ssc`) to observe and animate the event from
   Bengaluru, India (or any configured location).
 
-![Animation in Stellarium: the waning crescent Moon passes across Jupiter and its Galilean satellites, Bengaluru, 2–3 November 2026](video/jupiter-occultation-portrait.gif)
+![Animation: the waning crescent Moon passes across Jupiter and its Galilean satellites, Bengaluru, 2–3 November 2026](video/jupiter-occultation-portrait-variant-b.gif)
 
-The animation shows the event from Bengaluru in mobile portrait format (720 × 1280 pixels, 9:16 aspect ratio, suitable for Instagram Reels and YouTube Shorts). It includes:
+The animation presents the event from Bengaluru in mobile portrait format (720 × 1280 pixels, 9:16 aspect ratio, tailored for Instagram Reels and YouTube Shorts).
+
+### Video Variants
+
+Two production variants are available in `video/`:
+
+| Feature | Variant A (Visual HUD) | Variant B (Narration & Captions) |
+|---|---|---|
+| **Audio** | Silent | Kokoro-82M ONNX TTS (`af_heart` voice) |
+| **Subtitles** | None | Instagram-style bottom caption capsules |
+| **Telemetry HUD** | Bottom overlay (IST & Alt/Az) | Top overlay (IST & Alt/Az) |
+| **Ending Outro** | Contact timings timetable | Timetable + BAS logo + QR code ([bas.org.in](https://bas.org.in)) |
+| **Duration** | 56.6 seconds | 57.3 seconds |
+| **Video File** | [video/jupiter-occultation-portrait-variant-a.mp4](video/jupiter-occultation-portrait-variant-a.mp4) | [video/jupiter-occultation-portrait-variant-b.mp4](video/jupiter-occultation-portrait-variant-b.mp4) |
+| **GIF Preview** | [video/jupiter-occultation-portrait-variant-a.gif](video/jupiter-occultation-portrait-variant-a.gif) | [video/jupiter-occultation-portrait-variant-b.gif](video/jupiter-occultation-portrait-variant-b.gif) |
+
+### Video Storyboard Structure
+
 1. **Hook teaser card:** Attention-grabbing opening card highlighting the rare event.
 2. **Cinematic 3D Three.js flight:** Fast drone ascent from Bengaluru into cislunar orbit, striking a glowing sightline towards Jupiter, flying back beyond Jupiter, and watching the Moon glide across the line of sight to eclipse the Jovian system.
 3. **Wide sky overview:** Eastern pre-dawn sky in Leo with constellation lines, horizon, and rising Moon & Jupiter.
 4. **Telescopic context view (FOV 1.15°):** Continuous transit with running 2x HUD overlay (Bengaluru location, live IST time, and running Alt/Az coordinates for Jupiter and Moon).
 5. **Zoomed close-up (FOV 0.20°):** High magnification showing Jupiter's disk, cloud belts, and Galilean moons, pausing for 1.5 seconds at each contact moment (Contact I, II, Mid, III, IV) with 2x callout banners.
-6. **Bengaluru contact timings timetable:** Comprehensive observing timetable still card showing exact contact timings, altitudes, event duration, and telescope viewing tips.
-
-Full-resolution video:
-- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (56.5 seconds, 720 × 1280 pixels, H.264, 30 fps).
+6. **Bengaluru contact timetable & BAS outro:** Timetable card with contact times, altitudes, event duration, telescope tips, BAS logo, and QR code to [bas.org.in](https://bas.org.in).
 
 ## The Event
 
@@ -106,20 +120,26 @@ cp stellarium/jupiter-occultation.ssc ~/.stellarium/scripts/
 4. Select **Lunar Occultation of Jupiter (November 2-3, 2026)** and click the **Run** button (play icon).
    *(Alternatively, press **F12** to open the Script Console, load the file, and press Run).*
 
-### 4. Headless Mobile Portrait Video Generation
+### 4. Mobile Portrait Video Generation
 
-To generate the complete 41-second multi-segment mobile portrait video (title card, wide sky, telescopic transit with HUD, and zoomed close-up with contact pauses):
+To generate the complete multi-segment videos:
 
 ```powershell
+# Variant A (visual HUD, silent):
 uv run python make_segments.py
+
+# Variant B (Kokoro TTS narration, subtitles, BAS outro):
+uv run python make_variant_b.py
 ```
 
 This automates the entire pipeline:
-1. Generates the introductory title segment.
-2. Captures wide-sky context in Stellarium (Leo, horizon, rising Moon/Jupiter).
-3. Overlays running IST time and topocentric Alt/Az onto the telescopic transit.
-4. Generates a high-magnification close-up on Jupiter, pausing for 1.5 seconds at each contact (C1, C2, Mid, C3, C4) with callout banners.
-5. Assembles all segments into `video/jupiter-occultation-portrait.mp4` and creates an animated GIF preview.
+1. Generates the opening hook title segment.
+2. Renders the Three.js 3D cislunar geometry flight.
+3. Captures wide-sky context in Stellarium (Leo, horizon, rising Moon/Jupiter).
+4. Overlays running IST time and topocentric Alt/Az onto the telescopic transit.
+5. Generates a high-magnification close-up on Jupiter, pausing at each contact (C1, C2, Mid, C3, C4) with callout banners.
+6. Synthesizes Kokoro-82M TTS narration (`af_heart`), burns Instagram-style subtitle capsules, and appends the BAS outro timetable card.
+7. Assembles all segments into `video/jupiter-occultation-portrait-variant-b.mp4` and creates an animated GIF preview.
 
 ## Running the Python Calculation
 

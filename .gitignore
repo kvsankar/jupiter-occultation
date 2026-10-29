@@ -6,7 +6,10 @@ frames/
 frames_*/
 render_config.ini
 *.ass
-concat_list.txt
+concat_*.txt
 video/seg*.mp4
+video/raw_*.mp4
 video/*-complete.mp4
+models/
+audio/
 /engineering/

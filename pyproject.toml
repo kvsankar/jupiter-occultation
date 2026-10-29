@@ -7,6 +7,9 @@ dependencies = [
     "skyfield>=1.49",
     "pytest>=8.0.0",
     "playwright>=1.64.0",
+    "kokoro-onnx>=0.6.1",
+    "soundfile>=0.14.0",
+    "qrcode[pil]>=8.2",
 ]
 
 [tool.pytest.ini_options]
