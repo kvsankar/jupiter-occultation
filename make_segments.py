@@ -198,7 +198,7 @@ def build_hook_card(out_mp4, duration=2.5):
     subprocess.run(cmd, check=True)
 
 
-def build_threejs_geometry_segment(out_mp4, duration=8.0, fps=30):
+def build_threejs_geometry_segment(out_mp4, duration=12.0, fps=30):
     """Renders the Three.js 3D alignment flight from threejs_geometry.html."""
     from playwright.sync_api import sync_playwright
     frames_dir = os.path.join(CWD, "frames_threejs")
@@ -206,7 +206,10 @@ def build_threejs_geometry_segment(out_mp4, duration=8.0, fps=30):
     total_frames = int(duration * fps)
 
     existing = [f for f in os.listdir(frames_dir) if f.endswith(".jpg")]
-    if len(existing) < total_frames:
+    if len(existing) != total_frames:
+        if os.path.exists(frames_dir):
+            shutil.rmtree(frames_dir)
+        os.makedirs(frames_dir, exist_ok=True)
         print(f"Rendering {total_frames} Three.js frames via headless Chrome...")
         html_path = os.path.abspath("threejs_geometry.html").replace("\\", "/")
         url = f"file:///{html_path}"
@@ -573,7 +576,7 @@ def main():
     build_hook_card(seg1_mp4, duration=2.5)
 
     print("\nStep 2: Building Cinematic 3D Three.js Alignment Flight...")
-    build_threejs_geometry_segment(seg2_mp4, duration=8.0, fps=30)
+    build_threejs_geometry_segment(seg2_mp4, duration=12.0, fps=30)
 
     print("\nStep 3: Building Wide Sky Overview Segment...")
     build_wide_sky_segment(seg3_mp4)

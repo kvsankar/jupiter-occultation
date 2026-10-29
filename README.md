@@ -21,7 +21,7 @@ The animation shows the event from Bengaluru in mobile portrait format (720 × 1
 6. **Bengaluru contact timings timetable:** Comprehensive observing timetable still card showing exact contact timings, altitudes, event duration, and telescope viewing tips.
 
 Full-resolution video:
-- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (52.5 seconds, 720 × 1280 pixels, H.264, 30 fps).
+- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (56.5 seconds, 720 × 1280 pixels, H.264, 30 fps).
 
 ## The Event
 
