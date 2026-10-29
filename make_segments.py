@@ -141,9 +141,9 @@ PlayResY: 1280
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: BottomHUD, Segoe UI, 20, &H00FFFFFF, &H000000FF, &H80000000, &HB0000000, 0, 0, 0, 0, 100, 100, 0, 0, 3, 2, 0, 2, 20, 20, 35, 1
-Style: CalloutBox, Segoe UI, 24, &H00FFFFFF, &H000000FF, &H80000000, &HC0101828, 1, 0, 0, 0, 100, 100, 0, 0, 3, 2, 0, 8, 30, 30, 80, 1
-Style: TitleCard, Segoe UI, 34, &H00FFFFFF, &H000000FF, &H80000000, &H00000000, 1, 0, 0, 0, 100, 100, 0, 0, 1, 2, 2, 5, 40, 40, 40, 1
+Style: BottomHUD, Segoe UI, 32, &H00FFFFFF, &H000000FF, &H80000000, &HD00A0E18, 0, 0, 0, 0, 100, 100, 0, 0, 3, 3, 0, 2, 20, 20, 100, 1
+Style: CalloutBox, Segoe UI, 40, &H00FFFFFF, &H000000FF, &H80000000, &HD00A0E18, 1, 0, 0, 0, 100, 100, 0, 0, 3, 3, 0, 8, 30, 30, 140, 1
+Style: TitleCard, Segoe UI, 48, &H00FFFFFF, &H000000FF, &H80000000, &H00000000, 1, 0, 0, 0, 100, 100, 0, 0, 1, 2, 2, 5, 40, 40, 40, 1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -156,14 +156,14 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         t_start = format_ass_time(i * frame_dur)
         t_end = format_ass_time((i + 1) * frame_dur)
 
-        line1 = f"{{\\c&HEEEEEE&\\b1}}Bengaluru, India  {{\\c&H7799CC&}}|  {{\\c&HFFD27F&}}IST: {e['ist_str']}"
-        line2 = f"{{\\fs18\\c&HD0D0D0&\\b0}}Jupiter: Alt {e['alt_j']:.1f}°, Az {e['az_j']:.1f}°  {{\\c&H7799CC&}}|  {{\\c&HD0D0D0&}}Moon: Alt {e['alt_m']:.1f}°, Az {e['az_m']:.1f}°"
+        line1 = f"{{\\c&HEEEEEE&\\b1\\fs34}}Bengaluru, India   {{\\c&H7799CC&}}|   {{\\c&HFFD27F&}}IST: {e['ist_str']}"
+        line2 = f"{{\\fs27\\c&HD0D0D0&\\b0}}Jupiter: Alt {e['alt_j']:.1f}°, Az {e['az_j']:.1f}°   {{\\c&H7799CC&}}•   {{\\c&HD0D0D0&}}Moon: Alt {e['alt_m']:.1f}°, Az {e['az_m']:.1f}°"
         hud_text = f"{line1}\\N{line2}"
 
         events.append(f"Dialogue: 0,{t_start},{t_end},BottomHUD,,0,0,0,,{hud_text}")
 
         if e.get("callout_title"):
-            c_text = f"{{\\c&HFFD27F&\\fs26\\b1}}{e['callout_title']}\\N{{\\c&HE0E0E0&\\fs19\\b0}}{e['callout_desc']}"
+            c_text = f"{{\\c&HFFD27F&\\fs40\\b1}}{e['callout_title']}\\N{{\\c&HFFFFFF&\\fs29\\b0}}{e['callout_desc']}"
             events.append(f"Dialogue: 1,{t_start},{t_end},CalloutBox,,0,0,0,,{c_text}")
 
     with open(ass_path, "w", encoding="utf-8") as f:
@@ -175,12 +175,12 @@ def build_intro_card(out_mp4, duration=3.5):
     # Create dark starry intro background with text
     text_filter = (
         "drawbox=y=0:color=0x060b16:width=720:height=1280:t=fill,"
-        "drawtext=text='LUNAR OCCULTATION':font='Segoe UI':fontsize=42:fontcolor=white:x=(w-text_w)/2:y=460:shadowcolor=black:shadowx=2:shadowy=2,"
-        "drawtext=text='OF JUPITER':font='Segoe UI':fontsize=42:fontcolor=0xFFD27F:x=(w-text_w)/2:y=520:shadowcolor=black:shadowx=2:shadowy=2,"
-        "drawtext=text='Night of 2–3 November 2026':font='Segoe UI':fontsize=26:fontcolor=0xA0B8D0:x=(w-text_w)/2:y=620,"
-        "drawtext=text='Observed from Bengaluru, India':font='Segoe UI':fontsize=24:fontcolor=white:x=(w-text_w)/2:y=670,"
-        "drawtext=text='Waning crescent Moon passes in front of':font='Segoe UI':fontsize=20:fontcolor=0x8899A6:x=(w-text_w)/2:y=740,"
-        "drawtext=text='Jupiter & its four Galilean satellites':font='Segoe UI':fontsize=20:fontcolor=0x8899A6:x=(w-text_w)/2:y=775,"
+        "drawtext=text='LUNAR OCCULTATION':font='Segoe UI':fontsize=56:fontcolor=white:x=(w-text_w)/2:y=380:shadowcolor=black:shadowx=3:shadowy=3,"
+        "drawtext=text='OF JUPITER':font='Segoe UI':fontsize=56:fontcolor=0xFFD27F:x=(w-text_w)/2:y=450:shadowcolor=black:shadowx=3:shadowy=3,"
+        "drawtext=text='Night of 2–3 November 2026':font='Segoe UI':fontsize=36:fontcolor=0xA0B8D0:x=(w-text_w)/2:y=570,"
+        "drawtext=text='Observed from Bengaluru, India':font='Segoe UI':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=630,"
+        "drawtext=text='Waning crescent Moon passes in front of':font='Segoe UI':fontsize=30:fontcolor=0x8899A6:x=(w-text_w)/2:y=730,"
+        "drawtext=text='Jupiter & its four Galilean satellites':font='Segoe UI':fontsize=30:fontcolor=0x8899A6:x=(w-text_w)/2:y=780,"
         "fade=t=in:st=0:d=0.5,fade=t=out:st=3.0:d=0.5"
     )
     cmd = [
