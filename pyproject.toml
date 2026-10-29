@@ -6,6 +6,7 @@ dependencies = [
     "numpy>=2.0.0",
     "skyfield>=1.49",
     "pytest>=8.0.0",
+    "playwright>=1.64.0",
 ]
 
 [tool.pytest.ini_options]

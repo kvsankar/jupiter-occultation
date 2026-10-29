@@ -170,23 +170,100 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         f.write(header + "\n".join(events) + "\n")
 
 
-def build_intro_card(out_mp4, duration=3.5):
-    """Generates a clean title card video."""
-    # Create dark starry intro background with text
-    text_filter = (
-        "drawbox=y=0:color=0x060b16:width=720:height=1280:t=fill,"
-        "drawtext=text='LUNAR OCCULTATION':font='Segoe UI':fontsize=56:fontcolor=white:x=(w-text_w)/2:y=380:shadowcolor=black:shadowx=3:shadowy=3,"
-        "drawtext=text='OF JUPITER':font='Segoe UI':fontsize=56:fontcolor=0xFFD27F:x=(w-text_w)/2:y=450:shadowcolor=black:shadowx=3:shadowy=3,"
-        "drawtext=text='Night of 2–3 November 2026':font='Segoe UI':fontsize=36:fontcolor=0xA0B8D0:x=(w-text_w)/2:y=570,"
-        "drawtext=text='Observed from Bengaluru, India':font='Segoe UI':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=630,"
-        "drawtext=text='Waning crescent Moon passes in front of':font='Segoe UI':fontsize=30:fontcolor=0x8899A6:x=(w-text_w)/2:y=730,"
-        "drawtext=text='Jupiter & its four Galilean satellites':font='Segoe UI':fontsize=30:fontcolor=0x8899A6:x=(w-text_w)/2:y=780,"
-        "fade=t=in:st=0:d=0.5,fade=t=out:st=3.0:d=0.5"
-    )
+def build_hook_card(out_mp4, duration=2.5):
+    """Renders hook_card.html with Playwright and creates a 2.5s MP4 with fade."""
+    from playwright.sync_api import sync_playwright
+    png_path = os.path.join(VIDEO_DIR, "hook_card.png")
+    html_path = os.path.abspath("hook_card.html").replace("\\", "/")
+    url = f"file:///{html_path}"
+    
+    with sync_playwright() as p:
+        browser = p.chromium.launch(channel="chrome", headless=True)
+        page = browser.new_page(viewport={"width": 720, "height": 1280})
+        page.goto(url)
+        page.wait_for_timeout(300)
+        page.screenshot(path=png_path)
+        browser.close()
+
+    fade_out_st = max(0.5, duration - 0.5)
     cmd = [
         "ffmpeg", "-y",
-        "-f", "lavfi", "-i", f"color=c=0x060b16:s=720x1280:d={duration}:r=30",
-        "-vf", text_filter,
+        "-loop", "1", "-i", png_path,
+        "-t", str(duration),
+        "-vf", f"fade=t=in:st=0:d=0.4,fade=t=out:st={fade_out_st}:d=0.5",
+        "-r", "30",
+        "-c:v", "libx264", "-pix_fmt", "yuv420p",
+        out_mp4
+    ]
+    subprocess.run(cmd, check=True)
+
+
+def build_threejs_geometry_segment(out_mp4, duration=8.0, fps=30):
+    """Renders the Three.js 3D alignment flight from threejs_geometry.html."""
+    from playwright.sync_api import sync_playwright
+    frames_dir = os.path.join(CWD, "frames_threejs")
+    os.makedirs(frames_dir, exist_ok=True)
+    total_frames = int(duration * fps)
+
+    existing = [f for f in os.listdir(frames_dir) if f.endswith(".jpg")]
+    if len(existing) < total_frames:
+        print(f"Rendering {total_frames} Three.js frames via headless Chrome...")
+        html_path = os.path.abspath("threejs_geometry.html").replace("\\", "/")
+        url = f"file:///{html_path}"
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(channel="chrome", headless=True)
+            page = browser.new_page(viewport={"width": 720, "height": 1280})
+            page.goto(url)
+            page.wait_for_timeout(400)
+
+            for i in range(total_frames):
+                prog = i / float(total_frames - 1)
+                page.evaluate(f"window.renderFrameAt({prog:.4f})")
+                frame_file = os.path.join(frames_dir, f"frame_{i:04d}.jpg")
+                page.screenshot(path=frame_file, type="jpeg", quality=90)
+                if i % 30 == 0:
+                    print(f"  Three.js progress: {i}/{total_frames} frames ({prog*100:.0f}%)")
+
+            browser.close()
+    else:
+        print(f"Using existing {len(existing)} Three.js frames...")
+
+    fade_out_st = max(0.5, duration - 0.5)
+    cmd = [
+        "ffmpeg", "-y",
+        "-framerate", str(fps),
+        "-i", os.path.join(frames_dir, "frame_%04d.jpg"),
+        "-vf", f"fade=t=in:st=0:d=0.4,fade=t=out:st={fade_out_st}:d=0.5",
+        "-r", "30",
+        "-c:v", "libx264", "-pix_fmt", "yuv420p",
+        out_mp4
+    ]
+    subprocess.run(cmd, check=True)
+
+
+def build_summary_card(out_mp4, duration=4.5):
+    """Renders summary_card.html with Playwright and creates a 4.5s MP4 with fade."""
+    from playwright.sync_api import sync_playwright
+    png_path = os.path.join(VIDEO_DIR, "summary_card.png")
+    html_path = os.path.abspath("summary_card.html").replace("\\", "/")
+    url = f"file:///{html_path}"
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(channel="chrome", headless=True)
+        page = browser.new_page(viewport={"width": 720, "height": 1280})
+        page.goto(url)
+        page.wait_for_timeout(300)
+        page.screenshot(path=png_path)
+        browser.close()
+
+    fade_out_st = max(0.5, duration - 0.6)
+    cmd = [
+        "ffmpeg", "-y",
+        "-loop", "1", "-i", png_path,
+        "-t", str(duration),
+        "-vf", f"fade=t=in:st=0:d=0.5,fade=t=out:st={fade_out_st}:d=0.6",
+        "-r", "30",
         "-c:v", "libx264", "-pix_fmt", "yuv420p",
         out_mp4
     ]
@@ -485,31 +562,41 @@ def main():
     print(" BUILDING COMPLETE MULTI-SEGMENT OCCULTATION VIDEO")
     print("================================================================================")
 
-    seg1_mp4 = os.path.join(VIDEO_DIR, "seg1_title.mp4")
-    seg2_mp4 = os.path.join(VIDEO_DIR, "seg2_widesky.mp4")
-    seg3_mp4 = os.path.join(VIDEO_DIR, "seg3_telescopic.mp4")
-    seg4_mp4 = os.path.join(VIDEO_DIR, "seg4_zoomed_contacts.mp4")
+    seg1_mp4 = os.path.join(VIDEO_DIR, "seg1_hook.mp4")
+    seg2_mp4 = os.path.join(VIDEO_DIR, "seg2_threejs_geometry.mp4")
+    seg3_mp4 = os.path.join(VIDEO_DIR, "seg3_widesky.mp4")
+    seg4_mp4 = os.path.join(VIDEO_DIR, "seg4_telescopic.mp4")
+    seg5_mp4 = os.path.join(VIDEO_DIR, "seg5_zoomed_contacts.mp4")
+    seg6_mp4 = os.path.join(VIDEO_DIR, "seg6_summary.mp4")
 
-    print("\nStep 1: Building Title Card Segment...")
-    build_intro_card(seg1_mp4, duration=3.5)
+    print("\nStep 1: Building Opening Hook Teaser Card...")
+    build_hook_card(seg1_mp4, duration=2.5)
 
-    print("\nStep 2: Building Wide Sky Segment...")
-    build_wide_sky_segment(seg2_mp4)
+    print("\nStep 2: Building Cinematic 3D Three.js Alignment Flight...")
+    build_threejs_geometry_segment(seg2_mp4, duration=8.0, fps=30)
 
-    print("\nStep 3: Building Telescopic Segment with HUD...")
-    build_telescopic_segment(seg3_mp4)
+    print("\nStep 3: Building Wide Sky Overview Segment...")
+    build_wide_sky_segment(seg3_mp4)
 
-    print("\nStep 4: Building Zoomed Close-up Segment with Contact Pauses...")
-    build_zoomed_contacts_segment(seg4_mp4)
+    print("\nStep 4: Building Telescopic Segment with Running HUD...")
+    build_telescopic_segment(seg4_mp4)
 
-    # Step 5: Concatenate all 4 segments
-    print("\nStep 5: Concatenating all segments into master video...")
+    print("\nStep 5: Building Zoomed Close-up Segment with Contact Pauses...")
+    build_zoomed_contacts_segment(seg5_mp4)
+
+    print("\nStep 6: Building Bengaluru Contact Timings Summary Card...")
+    build_summary_card(seg6_mp4, duration=4.5)
+
+    # Step 7: Concatenate all 6 segments
+    print("\nStep 7: Concatenating all 6 segments into master video...")
     concat_list = os.path.join(CWD, "concat_list.txt")
     with open(concat_list, "w", encoding="utf-8") as f:
         f.write(f"file '{seg1_mp4.replace('\\', '/')}'\n")
         f.write(f"file '{seg2_mp4.replace('\\', '/')}'\n")
         f.write(f"file '{seg3_mp4.replace('\\', '/')}'\n")
         f.write(f"file '{seg4_mp4.replace('\\', '/')}'\n")
+        f.write(f"file '{seg5_mp4.replace('\\', '/')}'\n")
+        f.write(f"file '{seg6_mp4.replace('\\', '/')}'\n")
 
     master_mp4 = os.path.join(VIDEO_DIR, "jupiter-occultation-bengaluru-complete.mp4")
     concat_cmd = [
@@ -526,12 +613,12 @@ def main():
     shutil.copyfile(master_mp4, os.path.join(VIDEO_DIR, "jupiter-occultation-portrait.mp4"))
 
     # Generate high quality GIF preview of the complete video
-    print("\nStep 6: Generating animated GIF preview...")
+    print("\nStep 8: Generating animated GIF preview...")
     master_gif = os.path.join(VIDEO_DIR, "jupiter-occultation-portrait.gif")
     gif_cmd = [
         "ffmpeg", "-y",
         "-i", master_mp4,
-        "-vf", "fps=12,scale=360:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+        "-vf", "fps=10,scale=360:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
         master_gif
     ]
     subprocess.run(gif_cmd, check=True)

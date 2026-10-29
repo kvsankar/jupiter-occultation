@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #010308;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  #canvas-container {
+    width: 720px;
+    height: 1280px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  #overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 720px;
+    height: 1280px;
+    pointer-events: none;
+  }
+  .hud-badge {
+    position: absolute;
+    top: 60px;
+    left: 40px;
+    background: rgba(6, 12, 24, 0.9);
+    border: 1.5px solid rgba(100, 200, 255, 0.5);
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: #64D2FF;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  }
+  .hud-phase {
+    position: absolute;
+    bottom: 80px;
+    left: 40px;
+    right: 40px;
+    background: rgba(6, 12, 24, 0.92);
+    border: 1.5px solid rgba(255, 210, 127, 0.5);
+    border-radius: 16px;
+    padding: 20px 26px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+  }
+  .hud-phase h2 {
+    margin: 0 0 6px 0;
+    color: #FFD27F;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .hud-phase p {
+    margin: 0;
+    color: #E2ECF6;
+    font-size: 22px;
+    line-height: 1.35;
+  }
+  .distance-tag {
+    display: inline-block;
+    margin-top: 8px;
+    color: #00E5FF;
+    font-size: 18px;
+    font-weight: 600;
+  }
+</style>
+<script src="vendor/three.min.js"></script>
+</head>
+<body>
+<div id="canvas-container"></div>
+<div id="overlay">
+  <div class="hud-badge" id="badge">3D ALIGNMENT GEOMETRY</div>
+  <div class="hud-phase" id="phase-card">
+    <h2 id="phase-title">OBSERVER IN BENGALURU</h2>
+    <p id="phase-desc">Looking East at the pre-dawn sky</p>
+    <div class="distance-tag" id="phase-sub">Lat 12.97° N, Lon 77.59° E</div>
+  </div>
+</div>
+
+<script>
+// Procedural textures
+function createEarthTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 512;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0a1e36';
+  ctx.fillRect(0, 0, 1024, 512);
+  
+  // Continents
+  ctx.fillStyle = '#1c4a25';
+  ctx.beginPath();
+  ctx.ellipse(560, 200, 150, 100, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(660, 180, 160, 90, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // India
+  ctx.fillStyle = '#2d6a36';
+  ctx.beginPath();
+  ctx.moveTo(665, 215);
+  ctx.lineTo(715, 215);
+  ctx.lineTo(690, 275);
+  ctx.closePath();
+  ctx.fill();
+
+  // Ice caps
+  ctx.fillStyle = '#e8f4f8';
+  ctx.fillRect(0, 0, 1024, 30);
+  ctx.fillRect(0, 485, 1024, 27);
+
+  // Clouds
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  for (let i = 0; i < 50; i++) {
+    ctx.beginPath();
+    const cx = (i * 91) % 1024;
+    const cy = 50 + ((i * 41) % 400);
+    ctx.ellipse(cx, cy, 50 + (i % 35), 10 + (i % 9), (i * 0.15), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+function createMoonTexture() {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#8f9296';
+  ctx.fillRect(0, 0, 512, 256);
+  ctx.fillStyle = '#5a5d62';
+  ctx.beginPath();
+  ctx.ellipse(210, 110, 75, 55, 0.2, 0, Math.PI * 2);
+  ctx.ellipse(295, 90, 65, 50, -0.3, 0, Math.PI * 2);
+  ctx.ellipse(245, 160, 55, 40, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#b0b5ba';
+  for (let i = 0; i < 90; i++) {
+    const rx = (i * 59) % 512;
+    const ry = (i * 43) % 256;
+    ctx.beginPath();
+    ctx.arc(rx, ry, 2 + (i % 6), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+function createJupiterTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 512;
+  const ctx = c.getContext('2d');
+  const bands = [
+    { y: 0, h: 45, col: '#8b7d6b' },
+    { y: 45, h: 35, col: '#c8b496' },
+    { y: 80, h: 40, col: '#a68261' },
+    { y: 120, h: 30, col: '#e8dcce' },
+    { y: 150, h: 55, col: '#b26b47' },
+    { y: 205, h: 40, col: '#f0e6d6' },
+    { y: 245, h: 60, col: '#9c5938' },
+    { y: 305, h: 40, col: '#ebd5be' },
+    { y: 345, h: 45, col: '#a88265' },
+    { y: 390, h: 45, col: '#c4ab8e' },
+    { y: 435, h: 77, col: '#7a6f62' }
+  ];
+  bands.forEach(b => {
+    ctx.fillStyle = b.col;
+    ctx.fillRect(0, b.y, 1024, b.h);
+  });
+  // Great Red Spot
+  ctx.fillStyle = '#cc4e27';
+  ctx.beginPath();
+  ctx.ellipse(650, 275, 55, 32, -0.05, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 3;
+  for (let y = 100; y < 420; y += 28) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x < 1024; x += 40) {
+      ctx.quadraticCurveTo(x + 20, y + ((x % 80 === 0) ? 6 : -6), x + 40, y);
+    }
+    ctx.stroke();
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+// Scene setup
+const width = 720;
+const height = 1280;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 3000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(width, height);
+renderer.setPixelRatio(1);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+// Stars
+const starCount = 2200;
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount * 3; i += 3) {
+  starPos[i] = (Math.random() - 0.5) * 2000;
+  starPos[i+1] = (Math.random() - 0.5) * 2000;
+  starPos[i+2] = (Math.random() - 0.5) * 2000;
+}
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 2.0, transparent: true, opacity: 0.9 });
+scene.add(new THREE.Points(starGeo, starMat));
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0x283244, 1.0);
+scene.add(ambientLight);
+const sunLight = new THREE.DirectionalLight(0xfffaec, 2.4);
+sunLight.position.set(-250, 100, 180);
+scene.add(sunLight);
+
+// Earth
+const earthRadius = 14;
+const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
+const earthMat = new THREE.MeshStandardMaterial({
+  map: createEarthTexture(),
+  roughness: 0.7,
+  metalness: 0.1
+});
+const earth = new THREE.Mesh(earthGeo, earthMat);
+earth.rotation.y = -Math.PI * 0.35;
+scene.add(earth);
+
+// Earth atmosphere halo
+const atmosGeo = new THREE.SphereGeometry(earthRadius * 1.035, 48, 48);
+const atmosMat = new THREE.MeshBasicMaterial({
+  color: 0x4aa3df,
+  transparent: true,
+  opacity: 0.28,
+  side: THREE.BackSide
+});
+scene.add(new THREE.Mesh(atmosGeo, atmosMat));
+
+// Bengaluru location on Earth
+const bLat = 13.0 * Math.PI / 180;
+const bLon = 20.0 * Math.PI / 180;
+const bPos = new THREE.Vector3(
+  earthRadius * Math.cos(bLat) * Math.sin(bLon),
+  earthRadius * Math.sin(bLat),
+  earthRadius * Math.cos(bLat) * Math.cos(bLon)
+);
+
+// Observer site: Ground disc on Earth
+const groundGeo = new THREE.CircleGeometry(0.8, 24);
+const groundMat = new THREE.MeshBasicMaterial({ color: 0x1b3820, side: THREE.DoubleSide });
+const groundDisc = new THREE.Mesh(groundGeo, groundMat);
+groundDisc.position.copy(bPos.clone().multiplyScalar(1.002));
+groundDisc.lookAt(bPos.clone().multiplyScalar(2));
+scene.add(groundDisc);
+
+// Observer model: Stylized human silhouette with telescope
+const observerGroup = new THREE.Group();
+// Body (cylinder)
+const bodyGeo = new THREE.CylinderGeometry(0.1, 0.14, 0.55, 8);
+const silMat = new THREE.MeshBasicMaterial({ color: 0x050810 });
+const bodyMesh = new THREE.Mesh(bodyGeo, silMat);
+bodyMesh.position.y = 0.28;
+observerGroup.add(bodyMesh);
+// Head
+const headGeo = new THREE.SphereGeometry(0.1, 12, 12);
+const headMesh = new THREE.Mesh(headGeo, silMat);
+headMesh.position.y = 0.62;
+observerGroup.add(headMesh);
+// Telescope on tripod
+const tripodGeo = new THREE.CylinderGeometry(0.02, 0.18, 0.5, 6);
+const tripodMesh = new THREE.Mesh(tripodGeo, silMat);
+tripodMesh.position.set(0.3, 0.25, 0.1);
+observerGroup.add(tripodMesh);
+const scopeTubeGeo = new THREE.CylinderGeometry(0.04, 0.05, 0.65, 8);
+const scopeTubeMat = new THREE.MeshBasicMaterial({ color: 0x64d2ff });
+const scopeTube = new THREE.Mesh(scopeTubeGeo, scopeTubeMat);
+scopeTube.position.set(0.3, 0.55, 0.1);
+scopeTube.rotation.x = Math.PI / 3;
+observerGroup.add(scopeTube);
+
+observerGroup.position.copy(bPos);
+observerGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), bPos.clone().normalize());
+scene.add(observerGroup);
+
+// Glowing beacon circle around Bengaluru
+const beaconGeo = new THREE.RingGeometry(0.5, 0.85, 32);
+const beaconMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+const beacon = new THREE.Mesh(beaconGeo, beaconMat);
+beacon.position.copy(bPos.clone().multiplyScalar(1.01));
+beacon.lookAt(bPos.clone().multiplyScalar(2));
+scene.add(beacon);
+
+// Direction vector from Bengaluru towards Jupiter
+const jupDir = new THREE.Vector3(0.55, 0.42, 0.72).normalize();
+const jupDist = 260; // 3D units representing ~750,000,000 km
+const jupPos = bPos.clone().add(jupDir.clone().multiplyScalar(jupDist));
+
+// Jupiter Mesh
+const jupRadius = 15;
+const jupGeo = new THREE.SphereGeometry(jupRadius, 48, 48);
+const jupMat = new THREE.MeshStandardMaterial({
+  map: createJupiterTexture(),
+  roughness: 0.6
+});
+const jupiter = new THREE.Mesh(jupGeo, jupMat);
+jupiter.position.copy(jupPos);
+scene.add(jupiter);
+
+// Galilean Moons of Jupiter
+const gMoonOffsets = [
+  new THREE.Vector3(-22, 2, 4),
+  new THREE.Vector3(-14, -1, 2),
+  new THREE.Vector3(18, 3, -3),
+  new THREE.Vector3(30, -2, 5)
+];
+gMoonOffsets.forEach((off, idx) => {
+  const gGeo = new THREE.SphereGeometry(idx === 2 ? 0.9 : 0.6, 16, 16);
+  const gMat = new THREE.MeshBasicMaterial({ color: 0xf4eedb });
+  const gMesh = new THREE.Mesh(gGeo, gMat);
+  gMesh.position.copy(jupPos.clone().add(off));
+  scene.add(gMesh);
+});
+
+// Moon orbiting Earth
+const moonDist = 52;
+const moonRadius = 3.6;
+const moonGeo = new THREE.SphereGeometry(moonRadius, 32, 32);
+const moonMat = new THREE.MeshStandardMaterial({
+  map: createMoonTexture(),
+  roughness: 0.9
+});
+const moon = new THREE.Mesh(moonGeo, moonMat);
+scene.add(moon);
+
+// Base point where the sightline intersects the lunar orbit
+const sightlineIntersect = bPos.clone().lerp(jupPos, 0.20);
+// Orbit perpendicular direction
+const orbitPerp = new THREE.Vector3(-jupDir.z, 0.15, jupDir.x).normalize();
+
+// Sightline Laser Beam
+const linePoints = [bPos, jupPos];
+const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
+const lineMat = new THREE.LineBasicMaterial({
+  color: 0x00f0ff,
+  linewidth: 3,
+  transparent: true,
+  opacity: 0.9
+});
+const sightLine = new THREE.Line(lineGeo, lineMat);
+scene.add(sightLine);
+
+// Animation Driver: progress from 0.0 to 1.0 (270 frames total = 9.0s at 30fps)
+window.renderFrameAt = function(progress) {
+  // Moon orbital motion across line of sight:
+  // At progress = 0.82, Moon's center hits the line of sight exactly!
+  const moonOffset = (0.82 - progress) * 26.0;
+  moon.position.copy(sightlineIntersect.clone().add(orbitPerp.clone().multiplyScalar(moonOffset)));
+  
+  // Rotate Earth & Jupiter slightly
+  earth.rotation.y = -Math.PI * 0.35 + progress * 0.15;
+  jupiter.rotation.y = progress * 0.3;
+
+  // Pulse beacon
+  const pulse = 0.5 + 0.5 * Math.sin(progress * 30);
+  beacon.scale.set(1 + pulse * 0.25, 1 + pulse * 0.25, 1);
+  beaconMat.opacity = 0.6 + 0.4 * pulse;
+
+  const badge = document.getElementById('badge');
+  const title = document.getElementById('phase-title');
+  const desc = document.getElementById('phase-desc');
+  const sub = document.getElementById('phase-sub');
+
+  // Camera flight trajectory: 4 cinematic stages
+  if (progress < 0.20) {
+    // -------------------------------------------------------------
+    // STAGE 1: Observer on the Ground looking up at the sky (0.0 to 0.20)
+    // -------------------------------------------------------------
+    const p = progress / 0.20;
+    const smoothP = p * p * (3 - 2 * p);
+
+    // Camera sits right behind observer, looking up along telescope line
+    const camGround = bPos.clone().add(new THREE.Vector3(0.3, 0.5, 0.9));
+    const camAscent = bPos.clone().multiplyScalar(2.2).add(new THREE.Vector3(-6, 8, 5));
+    camera.position.lerpVectors(camGround, camAscent, smoothP);
+
+    const lookGround = bPos.clone().add(jupDir.clone().multiplyScalar(6));
+    const lookAscent = bPos.clone().add(jupDir.clone().multiplyScalar(20));
+    camera.lookAt(lookGround.clone().lerp(lookAscent, smoothP));
+
+    badge.innerText = "GROUND OBSERVER  •  BENGALURU";
+    title.innerText = "OBSERVER LOOKING AT THE SKY";
+    desc.innerText = "Standing under the pre-dawn sky with telescope";
+    sub.innerText = "Altitude 20° • Azimuth 80° (East)";
+
+    sightLine.visible = (progress > 0.08);
+
+  } else if (progress < 0.45) {
+    // -------------------------------------------------------------
+    // STAGE 2: Fast Drone Ascent into Space & Sightline Drawn (0.20 to 0.45)
+    // -------------------------------------------------------------
+    const p = (progress - 0.20) / 0.25;
+    const smoothP = p * p * (3 - 2 * p);
+
+    const camStart = bPos.clone().multiplyScalar(2.2).add(new THREE.Vector3(-6, 8, 5));
+    const camOrbit = earth.position.clone().add(new THREE.Vector3(-35, 30, 35));
+    camera.position.lerpVectors(camStart, camOrbit, smoothP);
+
+    const lookStart = bPos.clone().add(jupDir.clone().multiplyScalar(20));
+    const lookOrbit = sightlineIntersect.clone().lerp(earth.position, 0.3);
+    camera.lookAt(lookStart.clone().lerp(lookOrbit, smoothP));
+
+    badge.innerText = "RAPID DRONE ASCENT  •  CISLUNAR ORBIT";
+    title.innerText = "CLIMBING INTO SPACE";
+    desc.innerText = "A laser-straight line connects Bengaluru to Jupiter";
+    sub.innerText = "Earth & Moon revealed in orbital space";
+
+    sightLine.visible = true;
+
+  } else if (progress < 0.70) {
+    // -------------------------------------------------------------
+    // STAGE 3: Travel All the Way Back to Beyond Jupiter (0.45 to 0.70)
+    // -------------------------------------------------------------
+    const p = (progress - 0.45) / 0.25;
+    const smoothP = p * p * (3 - 2 * p);
+
+    const camOrbit = earth.position.clone().add(new THREE.Vector3(-35, 30, 35));
+    // Camera travels far past Jupiter, positioned beyond Jupiter looking back
+    const camDeep = jupPos.clone().add(jupDir.clone().multiplyScalar(45)).add(new THREE.Vector3(25, 20, 20));
+    camera.position.lerpVectors(camOrbit, camDeep, smoothP);
+
+    // Look back down the sightline toward Jupiter, Moon, and Earth
+    const lookOrbit = sightlineIntersect.clone().lerp(earth.position, 0.3);
+    const lookDeep = jupPos.clone().lerp(bPos, 0.15);
+    camera.lookAt(lookOrbit.clone().lerp(lookDeep, smoothP));
+
+    badge.innerText = "DEEP SPACE  •  BEYOND JUPITER";
+    title.innerText = "TRAVELED BEYOND JUPITER";
+    desc.innerText = "Looking back along the sightline toward Moon & Earth";
+    sub.innerText = "Distance to Earth: ~750,000,000 km";
+
+    sightLine.visible = true;
+
+  } else {
+    // -------------------------------------------------------------
+    // STAGE 4: Moon Moves & Obstructs Jupiter (0.70 to 1.0)
+    // -------------------------------------------------------------
+    const p = (progress - 0.70) / 0.30;
+    const smoothP = p * p * (3 - 2 * p);
+
+    // Camera glides into perfect alignment looking from behind Moon at Jupiter
+    const camDeep = jupPos.clone().add(jupDir.clone().multiplyScalar(45)).add(new THREE.Vector3(25, 20, 20));
+    // Looking directly along the sightline from behind Earth/Moon toward Jupiter
+    const camAlign = sightlineIntersect.clone().sub(jupDir.clone().multiplyScalar(30)).add(new THREE.Vector3(0, 4, -4));
+    camera.position.lerpVectors(camDeep, camAlign, smoothP);
+    camera.lookAt(jupPos);
+
+    if (progress >= 0.78 && progress <= 0.88) {
+      badge.innerText = "OCCULTATION  •  ALIGNMENT COMPLETE";
+      title.innerText = "MOON OBSTRUCTS JUPITER!";
+      desc.innerText = "The Moon passes directly across the line of sight";
+      sub.innerText = "Total Occultation Duration from Bengaluru: 35 min";
+    } else {
+      badge.innerText = "COSMIC ALIGNMENT  •  FINAL INGRESS";
+      title.innerText = "MOON SLICES THE SIGHTLINE";
+      desc.innerText = "Orbital motion blocks the giant planet from view";
+      sub.innerText = "Occultation geometry complete";
+    }
+  }
+
+  // Laser brightness pulsing
+  lineMat.opacity = 0.6 + 0.4 * Math.sin(progress * 20);
+
+  renderer.render(scene, camera);
+};
+
+// Initial frame
+window.renderFrameAt(0.02);
+</script>
+</body>
+</html>

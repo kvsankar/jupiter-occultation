@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    width: 720px;
+    height: 1280px;
+    background: radial-gradient(circle at 50% 30%, #0d1a30 0%, #060a14 100%);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .card {
+    width: 650px;
+    background: rgba(12, 20, 36, 0.88);
+    border: 2px solid rgba(255, 210, 127, 0.45);
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    padding: 36px 32px;
+    backdrop-filter: blur(8px);
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255, 210, 127, 0.15);
+    border: 1px solid rgba(255, 210, 127, 0.5);
+    color: #FFD27F;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 38px;
+    color: #FFFFFF;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    margin: 0 0 24px 0;
+    font-size: 24px;
+    color: #A0B8D0;
+    font-weight: 400;
+  }
+  .divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(120, 180, 255, 0.4), transparent);
+    margin: 20px 0;
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: rgba(18, 30, 52, 0.6);
+    border-left: 4px solid #FFD27F;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+  }
+  .time-col {
+    min-width: 155px;
+  }
+  .time-val {
+    font-size: 26px;
+    font-weight: 700;
+    color: #FFD27F;
+    letter-spacing: 0.5px;
+  }
+  .time-zone {
+    font-size: 16px;
+    color: #88A0B8;
+  }
+  .info-col {
+    flex: 1;
+  }
+  .contact-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+  }
+  .contact-desc {
+    font-size: 18px;
+    color: #A6C0DC;
+  }
+  .alt-az {
+    font-size: 16px;
+    color: #00E5FF;
+    font-weight: 600;
+  }
+  .footer-box {
+    margin-top: 24px;
+    background: rgba(14, 24, 42, 0.7);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+  }
+  .duration-highlight {
+    font-size: 22px;
+    font-weight: 700;
+    color: #64D2FF;
+    margin-bottom: 6px;
+  }
+  .tip-text {
+    font-size: 18px;
+    color: #8899A6;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div style="text-align: center;">
+    <div class="header-badge">Observing Timetable</div>
+    <h1>BENGALURU CONTACT TIMINGS</h1>
+    <div class="subtitle">Early Morning • Tuesday, 3 November 2026</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="timeline">
+    <!-- Contact I -->
+    <div class="timeline-item">
+      <div class="time-col">
+        <div class="time-val">02:28:56</div>
+        <div class="time-zone">IST (UTC+5:30)</div>
+      </div>
+      <div class="info-col">
+        <div class="contact-title">Contact I — Ingress Starts</div>
+        <div class="contact-desc">First touch at Moon's bright limb</div>
+        <div class="alt-az">Altitude 19.7° • Azimuth 79.6° (East)</div>
+      </div>
+    </div>
+
+    <!-- Contact II -->
+    <div class="timeline-item">
+      <div class="time-col">
+        <div class="time-val">02:31:31</div>
+        <div class="time-zone">IST (UTC+5:30)</div>
+      </div>
+      <div class="info-col">
+        <div class="contact-title">Contact II — Full Ingress</div>
+        <div class="contact-desc">Jupiter fully hidden behind Moon</div>
+        <div class="alt-az">Altitude 20.3° • Azimuth 79.7° (East)</div>
+      </div>
+    </div>
+
+    <!-- Mid -->
+    <div class="timeline-item">
+      <div class="time-col">
+        <div class="time-val">02:46:13</div>
+        <div class="time-zone">IST (UTC+5:30)</div>
+      </div>
+      <div class="info-col">
+        <div class="contact-title">Mid-Occultation — Max Depth</div>
+        <div class="contact-desc">Separation: 14.0 arcminutes</div>
+        <div class="alt-az">Altitude 23.8° • Azimuth 80.2° (East)</div>
+      </div>
+    </div>
+
+    <!-- Contact III -->
+    <div class="timeline-item">
+      <div class="time-col">
+        <div class="time-val">03:01:27</div>
+        <div class="time-zone">IST (UTC+5:30)</div>
+      </div>
+      <div class="info-col">
+        <div class="contact-title">Contact III — Egress Starts</div>
+        <div class="contact-desc">Jupiter emerges from Moon's dark limb</div>
+        <div class="alt-az">Altitude 27.5° • Azimuth 80.8° (East)</div>
+      </div>
+    </div>
+
+    <!-- Contact IV -->
+    <div class="timeline-item">
+      <div class="time-col">
+        <div class="time-val">03:04:12</div>
+        <div class="time-zone">IST (UTC+5:30)</div>
+      </div>
+      <div class="info-col">
+        <div class="contact-title">Contact IV — Full Egress</div>
+        <div class="contact-desc">Jupiter completely clear of lunar disk</div>
+        <div class="alt-az">Altitude 28.2° • Azimuth 80.9° (East)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-box">
+    <div class="duration-highlight">Total Occultation Duration: 35 min 16 sec</div>
+    <div class="tip-text">Look East in Leo • Visible to naked eye; best with binoculars or telescope</div>
+  </div>
+</div>
+</body>
+</html>

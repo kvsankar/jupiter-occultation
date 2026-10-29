@@ -13,13 +13,15 @@ repository provides two things:
 ![Animation in Stellarium: the waning crescent Moon passes across Jupiter and its Galilean satellites, Bengaluru, 2–3 November 2026](video/jupiter-occultation-portrait.gif)
 
 The animation shows the event from Bengaluru in mobile portrait format (720 × 1280 pixels, 9:16 aspect ratio, suitable for Instagram Reels and YouTube Shorts). It includes:
-1. **Intro title card:** Event details, date, and observing location.
-2. **Wide sky overview:** Eastern pre-dawn sky in Leo with constellation lines, horizon, and rising Moon & Jupiter.
-3. **Telescopic context view (FOV 1.15°):** Continuous transit with subtle live HUD overlay (Bengaluru location, running IST time, and running Alt/Az for Jupiter and Moon).
-4. **Zoomed close-up (FOV 0.20°):** High magnification showing Jupiter's disk, cloud belts, and Galilean moons, pausing for 1.5 seconds at each contact moment (Contact I, II, Mid, III, IV) with callout banners.
+1. **Hook teaser card:** Attention-grabbing opening card highlighting the rare event.
+2. **Cinematic 3D Three.js flight:** Fast drone ascent from Bengaluru into cislunar orbit, striking a glowing sightline towards Jupiter, flying back beyond Jupiter, and watching the Moon glide across the line of sight to eclipse the Jovian system.
+3. **Wide sky overview:** Eastern pre-dawn sky in Leo with constellation lines, horizon, and rising Moon & Jupiter.
+4. **Telescopic context view (FOV 1.15°):** Continuous transit with running 2x HUD overlay (Bengaluru location, live IST time, and running Alt/Az coordinates for Jupiter and Moon).
+5. **Zoomed close-up (FOV 0.20°):** High magnification showing Jupiter's disk, cloud belts, and Galilean moons, pausing for 1.5 seconds at each contact moment (Contact I, II, Mid, III, IV) with 2x callout banners.
+6. **Bengaluru contact timings timetable:** Comprehensive observing timetable still card showing exact contact timings, altitudes, event duration, and telescope viewing tips.
 
 Full-resolution video:
-- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (41 seconds, 720 × 1280 pixels, H.264, 30 fps).
+- **[video/jupiter-occultation-portrait.mp4](video/jupiter-occultation-portrait.mp4)** (52.5 seconds, 720 × 1280 pixels, H.264, 30 fps).
 
 ## The Event
 
