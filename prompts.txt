@@ -1,0 +1,58 @@
+I want to create a Stellarium script for observing the Jupiter occultation which is coming up in early Nov 2026. I hvae Stellarium installed locally. Continue the earlier work
+
+Do not look into other projects. Just need a new Stellarium script for jupiter occultation of early nov
+
+Now do a headless recording of this clip without any text or markers. Let it of 10 seconds duration. In mobile format portrait.
+
+I am okay with a longer video for 30 seconds
+
+Status?
+
+Status?
+
+Yes, create a Git repo here and then push it up as a publig Github repo. Use kvsankar id
+
+Add the mp4 video to the repo and put it in the rEADME
+
+I need the following changes 
+
+1. I need to show the location name (Bengaluru) and the running time in IST in a subtle font at the bottom
+2. I need you to show the running Alt/Az of Jupiter and Moon too (1 and can be above and 2 can be below)
+3. Post the current view, I need a repeat of the event zoomed in with Jupiter properly exposed (moon could be overexposed) - in this animation you will pause at various contact times for a bit just like time and date does 
+4. Overall format may be suitable for Insta or Youtube. 
+5. Let's also have a title segment at the beginning of the video saying what the event is (like Jupiter occultation of ... seen from Bangalore) 
+6. A third animation segment can show the overall sky and where Moon would be - a brief animation segment
+
+One issue - the fonts are too small on a mobile screen. I think we need to make them 2x. Do a self review before generating the next iteration of the video
+
+Ship the changes
+
+Now I need to have a hook at the beginning. Draw user into watching the whole video. What can we show? I also need a threejs animation showing the geometry. It needs to be cinematic. Start with the camera looking at an observer looking at the sky. The camera moves up like a fast moving drone going to the space and looking at both Earth and Moon. Line drawn connecting the observer to the Jupiter. And then we travel all the way back to beyond Jupiter. Line shown. Moon moves. Obstructs jupiter. Something like that. 
+
+Also the ending is abrupt. We need a still lasting a few seconds showing the contact times for Banglaore.
+
+The Three js flight is not at all usable. It's fast, lots of required objects, lines, etc. get clipped.
+
+This looks good. Keep this as variant A. I want you to build another variant with the following changes 
+
+1. TTS Audio - use the same tech used in the prashna project 
+2. With audio we should also include sub titles for folks watching muted - like typical Insta posts with words/phrases at the bottom - this means re-aligning the content 
+3. Towards the end, add a BAS logo and link to https://bas.org.in with a QR code to take you there.
+
+Status?
+
+Paths?
+
+Three changes 
+
+1. I think in the initial segment there is some oerlap of text in the bottom half. Sort it out. 
+2. Second issue - the TTS needs a bit of a change - 2:05 is read as "two pause zero five" - 2:05 should be passed to the TTS as "two oh five"
+3. The Three JS animation needs a change. It should show the Earth - Jupiter LoS first and then moving in and cutting it briefly.
+
+One more input - I think we need to mention somewhere that the event can be seen with naked eye or binoculars or a telescope. Telescope will enable magnified views.
+
+Jupter is obscured. The time announcements are still weird. 2:28 is "two ... twenty eight" with a pause.
+
+Can you save all the prompts I gave for this session into a file?
+
+Can you create a variant without any timestamps. Just the prompt text. Blank lines between prompts
