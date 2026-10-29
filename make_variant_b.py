@@ -113,7 +113,7 @@ def build_audio_tracks():
         ("seg2", "Here is the cosmic geometry. A straight line of sight connects Bengaluru to Jupiter. As the Moon moves in, it sweeps across and briefly cuts the line of sight, hiding the planet from view."),
         ("seg3", "In the constellation Leo, watch both bodies rise above the eastern horizon."),
         ("seg4", "Visible to the naked eye or binoculars, a telescope enables magnified views of Jupiter and its moons as the crescent Moon overtakes them for thirty-five minutes."),
-        ("seg5", "At 2:28 AM, ingress begins. By 2:31 AM, Jupiter is completely hidden. After maximum depth at 2:46 AM, Jupiter dramatically re-emerges at three oh one AM, ending full egress by three oh four AM."),
+        ("seg5", "At two twenty-eight AM, ingress begins. By two thirty-one AM, Jupiter is completely hidden. After maximum depth at two forty-six AM, Jupiter dramatically re-emerges at three oh one AM, ending full egress by three oh four AM."),
         ("seg6", "Join the Bangalore Astronomical Society to observe this rare event. Visit bas dot org dot in, or scan the QR code to connect with us.")
     ]
 
