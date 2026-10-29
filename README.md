@@ -24,7 +24,7 @@ Two production variants are available in `video/`:
 | **Subtitles** | None | Instagram-style bottom caption capsules |
 | **Telemetry HUD** | Bottom overlay (IST & Alt/Az) | Top overlay (IST & Alt/Az) |
 | **Ending Outro** | Contact timings timetable | Timetable + BAS logo + QR code ([bas.org.in](https://bas.org.in)) |
-| **Duration** | 56.6 seconds | 57.3 seconds |
+| **Duration** | 56.6 seconds | 56.2 seconds |
 | **Video File** | [video/jupiter-occultation-portrait-variant-a.mp4](video/jupiter-occultation-portrait-variant-a.mp4) | [video/jupiter-occultation-portrait-variant-b.mp4](video/jupiter-occultation-portrait-variant-b.mp4) |
 | **GIF Preview** | [video/jupiter-occultation-portrait-variant-a.gif](video/jupiter-occultation-portrait-variant-a.gif) | [video/jupiter-occultation-portrait-variant-b.gif](video/jupiter-occultation-portrait-variant-b.gif) |
 

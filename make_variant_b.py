@@ -59,27 +59,26 @@ CAPTIONS = {
         (1.4, 3.2, "JUPITER WILL VANISH BEHIND THE MOON")
     ],
     "seg2": [
-        (0.0, 2.4, "Seen from Bengaluru, India..."),
-        (2.4, 4.4, "An observer looks East before dawn"),
-        (4.4, 7.0, "As we soar into space..."),
-        (7.0, 9.6, "A laser sightline connects Earth to Jupiter"),
-        (9.6, 12.6, "The Moon sweeps in, blocking the giant planet!")
+        (0.0, 2.2, "Here is the cosmic geometry..."),
+        (2.2, 5.0, "A straight line of sight connects Bengaluru to Jupiter"),
+        (5.0, 8.2, "The Moon moves in and briefly cuts the line of sight..."),
+        (8.2, 11.7, "Hiding the giant planet and its moons from view!")
     ],
     "seg3": [
         (0.0, 2.2, "In the constellation Leo..."),
         (2.2, 4.8, "Watch both bodies rise above the eastern horizon")
     ],
     "seg4": [
-        (0.0, 2.8, "Through a telescope..."),
-        (2.8, 5.8, "The waning crescent Moon steadily overtakes Jupiter"),
-        (5.8, 10.0, "Hiding the planet and its moons for 35 minutes!")
+        (0.0, 3.2, "Visible to the naked eye or binoculars..."),
+        (3.2, 6.8, "A telescope enables magnified views of Jupiter and its moons..."),
+        (6.8, 10.5, "As the Moon steadily overtakes them for 35 minutes!")
     ],
     "seg5": [
         (0.0, 2.6, "At 2:28 AM, ingress begins..."),
-        (2.6, 5.8, "By 2:31 AM, Jupiter is completely occulted"),
-        (5.8, 9.2, "Mid-occultation arrives at 2:46 AM"),
-        (9.2, 13.5, "At 3:01 AM, Jupiter dramatically re-emerges..."),
-        (13.5, 17.5, "With full egress completed by 3:04 AM!")
+        (2.6, 5.6, "By 2:31 AM, Jupiter is completely hidden"),
+        (5.6, 9.0, "Mid-occultation arrives at 2:46 AM"),
+        (9.0, 13.0, "At 3:01 AM, Jupiter dramatically re-emerges..."),
+        (13.0, 16.7, "Ending full egress by 3:04 AM!")
     ],
     "seg6": [
         (0.0, 3.2, "Join the Bangalore Astronomical Society..."),
@@ -111,28 +110,27 @@ def build_audio_tracks():
 
     lines = [
         ("seg1", "On November third, Jupiter will vanish behind the Moon."),
-        ("seg2", "Seen from Bengaluru, an observer looks east before dawn. As we rise into space, a straight sightline connects Earth to Jupiter. The Moon sweeps into alignment, blocking the giant planet from view."),
+        ("seg2", "Here is the cosmic geometry. A straight line of sight connects Bengaluru to Jupiter. As the Moon moves in, it sweeps across and briefly cuts the line of sight, hiding the planet from view."),
         ("seg3", "In the constellation Leo, watch both bodies rise above the eastern horizon."),
-        ("seg4", "Through a telescope, the waning crescent Moon steadily overtakes Jupiter, hiding the planet and its four Galilean moons for thirty-five minutes."),
-        ("seg5", "At 2:28 AM, ingress begins. By 2:31 AM, Jupiter is completely hidden. After maximum depth at 2:46 AM, Jupiter dramatically re-emerges at 3:01 AM, ending full egress by 3:04 AM."),
+        ("seg4", "Visible to the naked eye or binoculars, a telescope enables magnified views of Jupiter and its moons as the crescent Moon overtakes them for thirty-five minutes."),
+        ("seg5", "At 2:28 AM, ingress begins. By 2:31 AM, Jupiter is completely hidden. After maximum depth at 2:46 AM, Jupiter dramatically re-emerges at three oh one AM, ending full egress by three oh four AM."),
         ("seg6", "Join the Bangalore Astronomical Society to observe this rare event. Visit bas dot org dot in, or scan the QR code to connect with us.")
     ]
 
     for name, text in lines:
         wav_file = os.path.join(AUDIO_DIR, f"{name}.wav")
-        if not os.path.exists(wav_file):
-            ph = tok.phonemize(text, "en-us")
-            ph = ph.replace("bˈæŋɡəlˌɔːɹ", "bˈɛŋɡəlˌuːɹuː")  # Bengaluru
-            tokens = tok.tokenize(ph)
-            feeds = {
-                "input_ids": np.array([[0, *tokens, 0]], dtype=np.int64),
-                "style": style_table[len(tokens)],
-                "speed": np.array([1.0], dtype=speed_type),
-            }
-            audio = sess.run(None, feeds)[0].reshape(-1)
-            audio, _ = trim_audio(audio)
-            sf.write(wav_file, audio, 24000, subtype="PCM_16")
-            print(f"  Generated speech {name}: {len(audio)/24000:.2f}s")
+        ph = tok.phonemize(text, "en-us")
+        ph = ph.replace("bˈæŋɡəlˌɔːɹ", "bˈɛŋɡəlˌuːɹuː")  # Bengaluru
+        tokens = tok.tokenize(ph)
+        feeds = {
+            "input_ids": np.array([[0, *tokens, 0]], dtype=np.int64),
+            "style": style_table[len(tokens)],
+            "speed": np.array([1.0], dtype=speed_type),
+        }
+        audio = sess.run(None, feeds)[0].reshape(-1)
+        audio, _ = trim_audio(audio)
+        sf.write(wav_file, audio, 24000, subtype="PCM_16")
+        print(f"  Generated speech {name}: {len(audio)/24000:.2f}s")
 
 
 def mux_audio_video(in_video, in_audio, out_muxed, duration=None):
@@ -209,7 +207,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     mux_audio_video(raw_video, os.path.join(AUDIO_DIR, "seg1.wav"), out_mp4, duration=duration)
 
 
-def build_variant_b_seg2(out_mp4, duration=12.6, fps=30):
+def build_variant_b_seg2(out_mp4, duration=11.7, fps=30):
     """Three.js flight with Instagram-style captions at bottom."""
     frames_dir = os.path.join(CWD, "frames_threejs")
     total_frames = int(duration * fps)
@@ -546,16 +544,16 @@ def main():
     build_variant_b_seg1(seg1_mp4, duration=3.2)
 
     print("\nStep 3: Building Segment 2 (3D Flight + Audio + Subtitles)...")
-    build_variant_b_seg2(seg2_mp4, duration=12.6, fps=30)
+    build_variant_b_seg2(seg2_mp4, duration=11.7, fps=30)
 
     print("\nStep 4: Building Segment 3 (Wide Sky + Top HUD + Audio + Subtitles)...")
     build_variant_b_seg3(seg3_mp4, duration=4.8)
 
     print("\nStep 5: Building Segment 4 (Telescopic Transit + Top HUD + Audio + Subtitles)...")
-    build_variant_b_seg4(seg4_mp4, duration=10.0)
+    build_variant_b_seg4(seg4_mp4, duration=10.5)
 
     print("\nStep 6: Building Segment 5 (Zoomed Contacts + Top Callouts + Audio + Subtitles)...")
-    build_variant_b_seg5(seg5_mp4, duration=17.5)
+    build_variant_b_seg5(seg5_mp4, duration=16.7)
 
     print("\nStep 7: Building Segment 6 (BAS Logo + QR Code + Timetable + Audio + Subtitles)...")
     build_variant_b_seg6(seg6_mp4, duration=9.2)

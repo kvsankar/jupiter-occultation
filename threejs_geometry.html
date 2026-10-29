@@ -28,14 +28,14 @@
   }
   .hud-badge {
     position: absolute;
-    top: 60px;
+    top: 48px;
     left: 36px;
     background: rgba(8, 14, 28, 0.92);
     border: 1.5px solid rgba(100, 200, 255, 0.6);
     border-radius: 20px;
-    padding: 10px 22px;
+    padding: 8px 20px;
     color: #64D2FF;
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -43,32 +43,32 @@
   }
   .hud-card {
     position: absolute;
-    bottom: 80px;
+    top: 104px;
     left: 36px;
     right: 36px;
-    background: rgba(10, 16, 32, 0.94);
-    border: 2px solid rgba(255, 210, 127, 0.6);
-    border-radius: 18px;
-    padding: 20px 26px;
+    background: rgba(10, 16, 32, 0.92);
+    border: 1.5px solid rgba(255, 210, 127, 0.5);
+    border-radius: 16px;
+    padding: 14px 22px;
     text-align: center;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.9);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   }
   .hud-card h2 {
-    margin: 0 0 6px 0;
+    margin: 0 0 4px 0;
     color: #FFD27F;
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 800;
   }
   .hud-card p {
-    margin: 0 0 6px 0;
+    margin: 0 0 4px 0;
     color: #FFFFFF;
-    font-size: 21px;
+    font-size: 19px;
     font-weight: 500;
-    line-height: 1.3;
+    line-height: 1.25;
   }
   .hud-sub {
     color: #00E5FF;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
   }
 </style>
@@ -342,94 +342,72 @@ const moonMat = new THREE.MeshStandardMaterial({
 const moon = new THREE.Mesh(moonGeo, moonMat);
 scene.add(moon);
 
-// Laser sightline tube (bright glowing cyan beam)
-const lineCurve = new THREE.LineCurve3(bPos, jupPos);
-const tubeGeo = new THREE.TubeGeometry(lineCurve, 64, 0.22, 8, false);
-const tubeMat = new THREE.MeshBasicMaterial({
+// Two-part Laser Sightline (Earth -> Moon Intersect, and Moon Intersect -> Jupiter)
+const beam1Geo = new THREE.TubeGeometry(new THREE.LineCurve3(bPos, sightlineIntersect), 48, 0.28, 8, false);
+const beam1Mat = new THREE.MeshBasicMaterial({
   color: 0x00ffff,
   transparent: true,
-  opacity: 0.85
+  opacity: 0.9
 });
-const sightLineMesh = new THREE.Mesh(tubeGeo, tubeMat);
-scene.add(sightLineMesh);
+const beam1 = new THREE.Mesh(beam1Geo, beam1Mat);
+scene.add(beam1);
 
-// Glowing impact spot when occulting
-const impactGeo = new THREE.SphereGeometry(0.5, 16, 16);
-const impactMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.0 });
+const beam2Geo = new THREE.TubeGeometry(new THREE.LineCurve3(sightlineIntersect, jupPos), 48, 0.28, 8, false);
+const beam2Mat = new THREE.MeshBasicMaterial({
+  color: 0x00ffff,
+  transparent: true,
+  opacity: 0.9
+});
+const beam2 = new THREE.Mesh(beam2Geo, beam2Mat);
+scene.add(beam2);
+
+// Occultation impact ripple on the lunar surface
+const impactGeo = new THREE.RingGeometry(0.3, 2.6, 32);
+const impactMat = new THREE.MeshBasicMaterial({ color: 0x64d2ff, side: THREE.DoubleSide, transparent: true, opacity: 0.0 });
 const impactMesh = new THREE.Mesh(impactGeo, impactMat);
+impactMesh.position.copy(sightlineIntersect);
+impactMesh.lookAt(bPos);
 scene.add(impactMesh);
 
 // System center for framing
 const sysCenter = earthPos.clone().add(jupPos).multiplyScalar(0.5);
 // Alignment vector from Earth to Jupiter
 const lineDir = jupPos.clone().sub(earthPos).normalize();
-
-// Keyframe endpoints:
-const c_start = bPos.clone().add(new THREE.Vector3(-3.5, 1.2, -3.5));
-const c_mid   = sysCenter.clone().add(new THREE.Vector3(-80.0, 0.0, 0.0));
-const c_end   = sysCenter.clone().add(new THREE.Vector3(-110.0, 0.0, 0.0));
-
-const l_start = bPos.clone().add(jupDir.clone().multiplyScalar(18.0));
-const l_end   = sysCenter.clone();
-
-// Smooth camera motion function
-window.getCameraState = function(progress) {
-  let camPos = new THREE.Vector3();
-  let lookPos = new THREE.Vector3();
-  let camUp = new THREE.Vector3();
-
-  if (progress < 0.35) {
-    // -----------------------------------------------------------------
-    // PHASE 1 & 2: Ground observer to Orbit Ascent (0.0 to 0.35)
-    // Starts over observer shoulder, rises into orbit
-    // -----------------------------------------------------------------
-    const p = progress / 0.35;
-    const sp = p * p * (3 - 2 * p);
-
-    camPos.lerpVectors(c_start, c_mid, sp);
-    lookPos.lerpVectors(l_start, l_end, sp);
-    camUp.lerpVectors(new THREE.Vector3(0, 1, 0), lineDir, sp).normalize();
-
-  } else {
-    // -----------------------------------------------------------------
-    // PHASE 3 & 4: Deep-Space Cosmic Alignment & Occultation (0.35 to 1.0)
-    // Steady, majestic vantage point where all bodies are completely framed
-    // -----------------------------------------------------------------
-    const p = (progress - 0.35) / 0.65;
-    const sp = p * p * (3 - 2 * p);
-
-    camPos.lerpVectors(c_mid, c_end, sp);
-    lookPos.copy(l_end);
-    camUp.copy(lineDir);
-  }
-
-  return { camPos, lookPos, camUp };
-};
+const lookDir = new THREE.Vector3(1, 0, 0);
+const screenRight = lookDir.clone().cross(lineDir).normalize();
 
 window.renderFrameAt = function(progress) {
-  // Moon sweeps horizontally across the laser sightline
-  // At progress = 0.88, Moon center is exactly at X = 0 (cutting the line!)
-  let moonX;
-  if (progress < 0.45) {
-    moonX = 8.5; // parked just off the line
+  // -----------------------------------------------------------------
+  // 1. Moon sweeps across the LoS:
+  // Phase 1 (0.0 to 0.28): Moon parked at +14 (LoS shown clearly first!)
+  // Phase 2 (0.28 to 0.72): Moon moves in, cuts the LoS, sweeps across
+  // Phase 3 (0.72 to 1.0): Moon clears the LoS, moving past to -14
+  // -----------------------------------------------------------------
+  let offset;
+  if (progress < 0.28) {
+    offset = 14.0;
+  } else if (progress < 0.72) {
+    const t = (progress - 0.28) / 0.44;
+    const st = t * t * (3 - 2 * t);
+    offset = 14.0 - st * 28.0; // from +14 to -14
   } else {
-    const sweep = (progress - 0.45) / 0.55; // 0.0 to 1.0
-    moonX = 8.5 - sweep * 16.0; // sweeps from +8.5 to -7.5
-  }
-  moon.position.set(moonX, sightlineIntersect.y, sightlineIntersect.z);
-
-  // Impact glow when occulting
-  const isObstructed = Math.abs(moonX) < (moonRadius * 0.95);
-  impactMat.opacity = isObstructed ? 0.9 : 0.0;
-  if (isObstructed) {
-    impactMesh.position.set(0, sightlineIntersect.y, sightlineIntersect.z);
+    offset = -14.0;
   }
 
-  // Camera update
-  const { camPos, lookPos, camUp } = window.getCameraState(progress);
-  camera.position.copy(camPos);
-  camera.up.copy(camUp);
-  camera.lookAt(lookPos);
+  moon.position.copy(sightlineIntersect.clone().add(screenRight.clone().multiplyScalar(offset)));
+
+  // Check if Moon is obstructing the beam
+  const isCut = Math.abs(offset) < (moonRadius * 0.92);
+  beam2.visible = !isCut;
+  impactMat.opacity = isCut ? 0.95 : 0.0;
+
+  // -----------------------------------------------------------------
+  // 2. Camera Motion: Stable, majestic framing in 9:16 portrait
+  // -----------------------------------------------------------------
+  const camDist = -118.0 + progress * 6.0;
+  camera.position.set(camDist, sysCenter.y, sysCenter.z + progress * 3.0);
+  camera.up.copy(lineDir);
+  camera.lookAt(sysCenter);
 
   // Slow natural rotations
   earth.rotation.y = -Math.PI * 0.35 + progress * 0.15;
@@ -440,36 +418,34 @@ window.renderFrameAt = function(progress) {
   beacon.scale.set(1 + pulse * 0.2, 1 + pulse * 0.2, 1);
   beaconMat.opacity = 0.6 + 0.4 * pulse;
 
-  // Subtitles & HUD
+  // -----------------------------------------------------------------
+  // 3. HUD Header at Top
+  // -----------------------------------------------------------------
   const badge = document.getElementById('badge');
   const title = document.getElementById('card-title');
   const desc = document.getElementById('card-desc');
   const sub = document.getElementById('card-sub');
 
-  if (progress < 0.22) {
-    badge.innerText = "GROUND OBSERVER  •  BENGALURU";
-    title.innerText = "OBSERVER LOOKING AT THE SKY";
-    desc.innerText = "Standing under the pre-dawn sky with telescope";
-    sub.innerText = "Target: Moon & Jupiter rising in the East";
-    sightLineMesh.visible = (progress > 0.10);
-  } else if (progress < 0.50) {
-    badge.innerText = "DRONE ASCENT  •  CISLUNAR ORBIT";
-    title.innerText = "CLIMBING INTO SPACE";
-    desc.innerText = "A laser-straight line connects Bengaluru to Jupiter";
-    sub.innerText = "Earth & Moon revealed in orbital space";
-    sightLineMesh.visible = true;
-  } else if (progress < 0.78) {
-    badge.innerText = "COSMIC GEOMETRY  •  DEEP SPACE";
-    title.innerText = "EARTH • MOON • JUPITER ALIGNMENT";
-    desc.innerText = "Looking along the 750,000,000 km sightline";
-    sub.innerText = "The Moon approaches the line of sight";
-    sightLineMesh.visible = true;
-  } else {
+  if (progress < 0.28) {
+    badge.innerText = "COSMIC GEOMETRY  •  LINE OF SIGHT";
+    title.innerText = "EARTH TO JUPITER SIGHTLINE";
+    desc.innerText = "Direct 750,000,000 km line of sight from Bengaluru to Jupiter";
+    sub.innerText = "Moon approaching in orbital transit";
+  } else if (progress < 0.46) {
+    badge.innerText = "LUNAR TRANSIT  •  APPROACH";
+    title.innerText = "MOON MOVING INTO ALIGNMENT";
+    desc.innerText = "The Moon glides towards the Earth–Jupiter sightline";
+    sub.innerText = "Orbital velocity brings lunar crescent into position";
+  } else if (progress < 0.68) {
     badge.innerText = "OCCULTATION  •  ALIGNMENT COMPLETE";
-    title.innerText = "MOON BLOCKS JUPITER!";
-    desc.innerText = "The Moon passes directly across the line of sight";
-    sub.innerText = "Total Occultation Duration from Bengaluru: 35 min";
-    sightLineMesh.visible = true;
+    title.innerText = "MOON CUTS THE LINE OF SIGHT!";
+    desc.innerText = "The lunar crescent sweeps across and obstructs the Jovian system";
+    sub.innerText = "Jupiter & Galilean moons occulted from Earth";
+  } else {
+    badge.innerText = "EGRESS  •  LINE OF SIGHT RESTORED";
+    title.innerText = "JUPITER EMERGES FROM SHADOW";
+    desc.innerText = "The Moon clears the sightline after 35-minute transit";
+    sub.innerText = "Direct sightline restored across the solar system";
   }
 
   renderer.render(scene, camera);
